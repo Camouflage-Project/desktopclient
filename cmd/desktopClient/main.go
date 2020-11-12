@@ -10,6 +10,7 @@ func main() {
 
 	done := make(chan bool)
 	go internal.UpdateIfNewVersionExists(c)
+	go internal.InitHeartbeat(c)
 	<- done
 }
 

@@ -12,6 +12,7 @@ type Configuration struct {
 	ScriptUrl       string
 	NewVersionUrl   string
 	BinaryUrl string
+	HeartbeatUrl string
 	Key string
 	NamePrefix string
 	CurrentVersion string
@@ -30,6 +31,7 @@ func ReadConfig() *Configuration {
 		baseUrl + "script",
 		baseUrl + "new-version",
 		baseUrl + "binary",
+		baseUrl + "heartbeat",
 		Key,
 		"SingleProxyDesktopClient",
 		currentVersion,
