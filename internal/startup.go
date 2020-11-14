@@ -14,6 +14,11 @@ import (
 )
 
 func Startup(c *Configuration) bool {
+	copied := copyToInstallDirectoryAndExecute(c)
+	if copied {
+		return true
+	}
+
 	installed := InstallServiceIfNotYetInstalled(c)
 	if installed {
 		return true
@@ -21,6 +26,37 @@ func Startup(c *Configuration) bool {
 
 	register(c)
 	removeExistingOldVersions(c)
+
+	return false
+}
+
+func copyToInstallDirectoryAndExecute(c *Configuration) bool {
+	executable, err := os.Executable()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fileName := GetFilenameFromProcessName(executable)
+	workingDir := GetWorkingDirectoryFromProcessName(executable)
+
+	var installDir string
+	if runtime.GOOS == "windows" {
+		installDir = c.WindowsInstallDirectory
+	} else {
+		installDir = c.UnixInstallDirectory
+	}
+
+	newPath := installDir + fileName
+
+	if workingDir != installDir {
+		err = os.Rename(fileName, newPath)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		ExecuteNewBinary(newPath)
+		return true
+	}
 
 	return false
 }

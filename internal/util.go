@@ -1,9 +1,22 @@
 package internal
 
 import (
+	"fmt"
+	"os/exec"
 	"path/filepath"
 )
 
-func getFilenameFromProcessName(processName string) string {
+func GetFilenameFromProcessName(processName string) string {
 	return filepath.Base(processName)
+}
+
+func GetWorkingDirectoryFromProcessName(processName string) string {
+	return filepath.Dir(processName)
+}
+
+func ExecuteNewBinary(binaryPath string) {
+	err := exec.Command(binaryPath).Start()
+	if err!=nil {
+		fmt.Println(err.Error())
+	}
 }

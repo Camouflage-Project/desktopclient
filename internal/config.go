@@ -16,6 +16,8 @@ type Configuration struct {
 	Key string
 	NamePrefix string
 	CurrentVersion string
+	UnixInstallDirectory string
+	WindowsInstallDirectory string
 }
 
 func ReadConfig() *Configuration {
@@ -24,7 +26,7 @@ func ReadConfig() *Configuration {
 	if err != nil {
 		fmt.Println(err)
 	}
-	currentVersion := getFilenameFromProcessName(executable)
+	currentVersion := GetFilenameFromProcessName(executable)
 
 	return &Configuration{
 		baseUrl + "register-desktop-client",
@@ -35,5 +37,7 @@ func ReadConfig() *Configuration {
 		Key,
 		"SingleProxyDesktopClient",
 		currentVersion,
+		"/usr/local/bin/",
+		"C:\\Tools\\",
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 )
@@ -28,7 +27,7 @@ func UpdateIfNewVersionExists(c *Configuration) {
 			if err != nil {
 				continue
 			}
-			executeNewBinary(filePath)
+			ExecuteNewBinary(filePath)
 		}
 	}
 }
@@ -98,11 +97,4 @@ func downloadNewBinary(c *Configuration, newVersion string) (string, error) {
 	}
 
 	return binaryPath, nil
-}
-
-func executeNewBinary(binaryPath string) {
-	err := exec.Command(binaryPath).Start()
-	if err!=nil {
-		fmt.Println(err.Error())
-	}
 }
