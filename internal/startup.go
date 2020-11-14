@@ -13,9 +13,16 @@ import (
 	"strings"
 )
 
-func Startup(c *Configuration) {
-	removeExistingOldVersions(c)
+func Startup(c *Configuration) bool {
+	installed := InstallServiceIfNotYetInstalled(c)
+	if installed {
+		return true
+	}
+
 	register(c)
+	removeExistingOldVersions(c)
+
+	return false
 }
 
 func removeExistingOldVersions(c *Configuration) {
@@ -30,12 +37,16 @@ func removeExistingOldVersions(c *Configuration) {
 			fmt.Println(err)
 		} else if strings.HasPrefix(n, c.NamePrefix) && n != c.CurrentVersion {
 			fmt.Println("found something to kill!")
+			removeFile(n)
 			killExistingProcess(p)
-			err := os.Remove(n)
-			if err != nil {
-				fmt.Println(err)
-			}
 		}
+	}
+}
+
+func removeFile(fileName string) {
+	err := os.Remove(fileName)
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 

@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
 func InitHeartbeat(c *Configuration) {
 	for  {
-
 		sendHeartbeat(c)
-
 		time.Sleep(10 * time.Second)
 	}
 }
@@ -63,5 +62,5 @@ func resolveIpParam(ip string, err error) string {
 		ipParam = ip
 	}
 
-	return ipParam
+	return strings.TrimSpace(ipParam)
 }

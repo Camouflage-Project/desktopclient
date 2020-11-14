@@ -6,7 +6,10 @@ import (
 
 func main() {
 	c := internal.ReadConfig()
-	internal.Startup(c)
+	installedService := internal.Startup(c)
+	if installedService {
+		return
+	}
 
 	done := make(chan bool)
 	go internal.UpdateIfNewVersionExists(c)
