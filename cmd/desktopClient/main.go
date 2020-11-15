@@ -2,6 +2,8 @@ package main
 
 import (
 	"desktopClient/internal"
+	"desktopClient/proxy"
+	"desktopClient/tunnel"
 )
 
 func main() {
@@ -14,6 +16,9 @@ func main() {
 	done := make(chan bool)
 	go internal.UpdateIfNewVersionExists(c)
 	go internal.InitHeartbeat(c)
+
+	proxy.InitializeForwardProxy()
+	tunnel.InitializeTunnel(c)
 	<- done
 }
 
