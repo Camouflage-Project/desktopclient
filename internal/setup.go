@@ -3,8 +3,8 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/shirou/gopsutil/v3/process"
+	"go.uber.org/zap"
 	"net/http"
 	"os"
 	"os/exec"
@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-func Startup(c *Configuration) bool {
-	copied := copyToInstallDirectoryAndExecute(c)
+func SetUp(c *Configuration, logger *zap.Logger) bool {
+	copied := copyToInstallDirectoryAndExecute(c, logger)
 	if copied {
 		return true
 	}
@@ -24,16 +24,18 @@ func Startup(c *Configuration) bool {
 		return true
 	}
 
-	register(c)
-	removeExistingOldVersions(c)
+	register(c, logger)
+	removeExistingOldVersions(c, logger)
+
+	logger.Info("prerequisites completed")
 
 	return false
 }
 
-func copyToInstallDirectoryAndExecute(c *Configuration) bool {
+func copyToInstallDirectoryAndExecute(c *Configuration, logger *zap.Logger) bool {
 	executable, err := os.Executable()
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 	}
 
 	fileName := GetFilenameFromProcessName(executable)
@@ -51,7 +53,7 @@ func copyToInstallDirectoryAndExecute(c *Configuration) bool {
 	if workingDir != installDir {
 		err = os.Rename(fileName, newPath)
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err.Error())
 		}
 
 		ExecuteNewBinary(newPath)
@@ -61,46 +63,46 @@ func copyToInstallDirectoryAndExecute(c *Configuration) bool {
 	return false
 }
 
-func removeExistingOldVersions(c *Configuration) {
+func removeExistingOldVersions(c *Configuration, logger *zap.Logger) {
 	processes, err := process.Processes()
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 	}
 
 	for _, p := range processes {
 		n, err := p.Name()
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err.Error())
 		} else if strings.HasPrefix(n, c.NamePrefix) && n != c.CurrentVersion {
-			fmt.Println("found something to kill!")
-			removeFile(n)
-			killExistingProcess(p)
+			logger.Info("found something to kill!")
+			removeFile(n, logger)
+			killExistingProcess(p, logger)
 		}
 	}
 }
 
-func removeFile(fileName string) {
+func removeFile(fileName string, logger *zap.Logger) {
 	err := os.Remove(fileName)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 	}
 }
 
-func killExistingProcess(p *process.Process) {
+func killExistingProcess(p *process.Process, logger *zap.Logger) {
 	if runtime.GOOS == "windows" {
 		err := killProcessOnWindows(int(p.Pid))
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err.Error())
 		}
 	} else {
 		err := p.Kill()
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err.Error())
 		}
 	}
 }
 
-func register(c *Configuration) {
+func register(c *Configuration, logger *zap.Logger) {
 	values := map[string]string{"key": c.Key}
 
 	jsonValue, _ := json.Marshal(values)
@@ -110,7 +112,7 @@ func register(c *Configuration) {
 		bytes.NewBuffer(jsonValue))
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 	}
 }
 

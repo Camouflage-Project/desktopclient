@@ -3,7 +3,6 @@ package proxy
 import (
 	"context"
 	"crypto/tls"
-	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -11,11 +10,10 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func InitializeForwardProxy() {
+func InitializeForwardProxy(stdLogger *log.Logger, logger *zap.Logger) {
 	var (
 		flagCertPath = ""
 		flagKeyPath  = ""
@@ -23,7 +21,6 @@ func InitializeForwardProxy() {
 		flagAuthUser = ""
 		flagAuthPass = ""
 		flagAvoid    = ""
-		flagVerbose  = false
 
 		flagDestDialTimeout         = 10*time.Second
 		flagDestReadTimeout         = 5*time.Second
@@ -39,24 +36,6 @@ func InitializeForwardProxy() {
 		flagLEWhitelist = ""
 		flagLECacheDir  = "/tmp"
 	)
-
-	flag.Parse()
-
-	c := zap.NewProductionConfig()
-	c.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-
-	if flagVerbose {
-		c.Level.SetLevel(zapcore.DebugLevel)
-	} else {
-		c.Level.SetLevel(zapcore.ErrorLevel)
-	}
-
-	logger, err := c.Build()
-	if err != nil {
-		log.Fatalln("Error: failed to initiate logger")
-	}
-	defer logger.Sync()
-	stdLogger := zap.NewStdLog(logger)
 
 	p := &Proxy{
 		ForwardingHTTPProxy: NewForwardingHTTPProxy(stdLogger),
@@ -107,13 +86,11 @@ func InitializeForwardProxy() {
 		<-sigint
 
 		p.Logger.Info("Server shutting down")
-		if err = s.Shutdown(context.Background()); err != nil {
+		if err := s.Shutdown(context.Background()); err != nil {
 			p.Logger.Error("Server shutdown failed", zap.Error(err))
 		}
 		close(idleConnsClosed)
 	}()
-
-	p.Logger.Info("Server starting", zap.String("address", s.Addr))
 
 	var svrErr error
 	if flagCertPath != "" && flagKeyPath != "" || flagLetsEncrypt {

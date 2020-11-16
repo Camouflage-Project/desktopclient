@@ -11,7 +11,7 @@ func GetFilenameFromProcessName(processName string) string {
 }
 
 func GetWorkingDirectoryFromProcessName(processName string) string {
-	return filepath.Dir(processName)
+	return filepath.Dir(processName) + string(filepath.Separator)
 }
 
 func ExecuteNewBinary(binaryPath string) {

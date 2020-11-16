@@ -8,7 +8,11 @@ import (
 
 func main() {
 	c := internal.ReadConfig()
-	installedService := internal.Startup(c)
+
+	stdLogger, logger := internal.GetLoggers(c)
+	logger.Info("logging something")
+
+	installedService := internal.SetUp(c, logger)
 	if installedService {
 		return
 	}
@@ -17,8 +21,11 @@ func main() {
 	go internal.UpdateIfNewVersionExists(c)
 	go internal.InitHeartbeat(c)
 
-	proxy.InitializeForwardProxy()
-	tunnel.InitializeTunnel(c)
+	logger.Info("initializing forward proxy")
+	go proxy.InitializeForwardProxy(stdLogger, logger)
+	logger.Info("initializing ssh tunnel")
+	go tunnel.InitializeTunnel(c)
+	logger.Info("everything initialized")
 	<- done
 }
 
