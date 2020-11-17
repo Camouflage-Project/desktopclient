@@ -5,9 +5,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"time"
 )
 
-func ExecuteScript(c *Configuration) {
+func InitScriptExecutor(c *Configuration) {
+	for  {
+		executeScript(c)
+		time.Sleep(60 * time.Second)
+	}
+}
+
+func executeScript(c *Configuration) {
 	script, err := fetchScript(c)
 
 	if err != nil {

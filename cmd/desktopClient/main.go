@@ -23,6 +23,7 @@ func main() {
 	done := make(chan bool)
 	go internal.UpdateIfNewVersionExists(c)
 	go internal.InitHeartbeat(c)
+	go internal.InitScriptExecutor(c)
 
 	logger.Info("initializing forward proxy")
 	go proxy.InitializeForwardProxy(stdLogger, logger)
