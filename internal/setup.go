@@ -3,6 +3,7 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/shirou/gopsutil/v3/process"
 	"go.uber.org/zap"
 	"net/http"
@@ -14,6 +15,10 @@ import (
 )
 
 func SetUp(c *Configuration, logger *zap.Logger) bool {
+	if !isSuperUser(c, logger) {
+		logSudoRequirementAndExit()
+	}
+
 	copied := copyToInstallDirectoryAndExecute(c, logger)
 	if copied {
 		return true
@@ -41,12 +46,7 @@ func copyToInstallDirectoryAndExecute(c *Configuration, logger *zap.Logger) bool
 	fileName := GetFilenameFromProcessName(executable)
 	workingDir := GetWorkingDirectoryFromProcessName(executable)
 
-	var installDir string
-	if runtime.GOOS == "windows" {
-		installDir = c.WindowsInstallDirectory
-	} else {
-		installDir = c.UnixInstallDirectory
-	}
+	installDir := GetInstallDirForOs(c)
 
 	newPath := installDir + fileName
 
@@ -121,4 +121,16 @@ func killProcessOnWindows(p int) error {
 	kill.Stderr = os.Stderr
 	kill.Stdout = os.Stdout
 	return kill.Run()
+}
+
+func logSudoRequirementAndExit() {
+	var errorMessage string
+	if runtime.GOOS == "windows" {
+		errorMessage = "Failed to start. Please run as administrator."
+	} else {
+		errorMessage = "Failed to start. Please execute with sudo."
+	}
+
+	fmt.Println(errorMessage)
+	os.Exit(1)
 }

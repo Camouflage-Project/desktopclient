@@ -1,10 +1,8 @@
 package tunnel
 
 import (
-	"fmt"
 	"log"
 	"net"
-	"os"
 	"strings"
 
 	"github.com/function61/gokit/logex"
@@ -25,13 +23,6 @@ type loggerFactory func(prefix string) *log.Logger
 func mkLoggerFactory(rootLogger *log.Logger) loggerFactory {
 	return func(prefix string) *log.Logger {
 		return logex.Prefix(prefix, rootLogger)
-	}
-}
-
-func exitIfError(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
 	}
 }
 

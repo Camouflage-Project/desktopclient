@@ -1,0 +1,2 @@
+cd into $GOPATH/src/desktopClient/cmd/desktopClient and build like this with injected variables:
+go build -ldflags "-X desktopClient/internal.Key=somekey -X desktopClient/internal.InjectedRemoteSshPort=9000"

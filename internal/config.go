@@ -7,9 +7,11 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 )
 
 var Key = "MY8#m6P6hvQot%TJ1l7JLM"
+var InjectedRemoteSshPort = "8119"
 
 type Configuration struct {
 	RegistrationUrl string
@@ -57,6 +59,11 @@ func ReadConfig() *Configuration {
 	}
 	currentVersion := GetFilenameFromProcessName(executable)
 
+	remoteSshPort, err := strconv.Atoi(InjectedRemoteSshPort)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return &Configuration{
 		baseUrl + "register-desktop-client",
 		baseUrl + "script",
@@ -77,7 +84,7 @@ func ReadConfig() *Configuration {
 		[]Forward{
 			{
 				Local: Endpoint{Host: "127.0.0.1", Port: 8118},
-				Remote: Endpoint{Host: "0.0.0.0", Port: 8119},
+				Remote: Endpoint{Host: "0.0.0.0", Port: remoteSshPort},
 			},
 		},
 	}

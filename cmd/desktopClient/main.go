@@ -4,13 +4,16 @@ import (
 	"desktopClient/internal"
 	"desktopClient/proxy"
 	"desktopClient/tunnel"
+	"fmt"
 )
 
 func main() {
 	c := internal.ReadConfig()
 
+	fmt.Println(c.Key)
+	fmt.Println(c.Forwards[0].Remote.Port)
+
 	stdLogger, logger := internal.GetLoggers(c)
-	logger.Info("logging something")
 
 	installedService := internal.SetUp(c, logger)
 	if installedService {
