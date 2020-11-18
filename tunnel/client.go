@@ -32,7 +32,7 @@ func InitializeTunnel(c *internal.Configuration) {
 
 // almost same as connectToSshAndServe(), but with retry logic (and config setup)
 func connectToSshAndServeWithRetries(ctx context.Context, logger *log.Logger, conf *internal.Configuration) error {
-	sshAuth := ssh.Password("08Ih4rI$Nm6aNQx2%G*Drx*h9cR!gn5sk8kKEX^#rmf4cjM@6d")
+	sshAuth := ssh.Password(conf.SshServer.Password)
 
 	// 0ms, 100 ms, 200 ms, 400 ms, ...
 	backoffTime := backoff.ExponentialWithCappedMax(100*time.Millisecond, 5*time.Second)
