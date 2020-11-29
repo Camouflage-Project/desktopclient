@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"github.com/docker/docker/api/types"
@@ -9,29 +10,29 @@ import (
 	"github.com/docker/go-connections/nat"
 	"io"
 	"os"
+	"strings"
 )
 
-type ExecResult struct {
-	StdOut string
-	StdErr string
-	ExitCode int
-}
-
-func SpinUpContainer() {
+func SpinUpContainer() string {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	reader, err := cli.ImagePull(ctx, "docker.io/nvidia/cuda", types.ImagePullOptions{})
+	reader, err := cli.ImagePull(ctx, "docker.io/nvidia/cuda:11.1-base-ubuntu20.04", types.ImagePullOptions{})
 	if err != nil {
 		panic(err)
 	}
 	io.Copy(os.Stdout, reader)
 
+	openHostPort, err := GetOpenPort()
+	if err != nil {
+		panic(err)
+	}
+
 	containerCreateResp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: "nvidia/cuda",
+		Image: "nvidia/cuda:11.1-base-ubuntu20.04",
 		Cmd:   nil,
 		Tty:   true,
 		ExposedPorts: nat.PortSet{
@@ -43,7 +44,7 @@ func SpinUpContainer() {
 				"22/tcp": []nat.PortBinding{
 					{
 						HostIP:   "0.0.0.0",
-						HostPort: "22",
+						HostPort: string(openHostPort),
 					},
 				},
 			},
@@ -69,13 +70,25 @@ func SpinUpContainer() {
 		panic(err)
 	}
 
-	_, err = cli.ContainerExecAttach(context.Background(), execResp.ID, types.ExecConfig{})
+	attachResp, err := cli.ContainerExecAttach(context.Background(), execResp.ID, types.ExecConfig{})
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	//stopContainer(ctx, cli, containerCreateResp.ID)
-	//removeContainer(ctx, cli, containerCreateResp.ID)
+	scanner := bufio.NewScanner(attachResp.Reader)
+
+	sshdServerInstallSucceded := false
+	for scanner.Scan() {
+		if strings.Contains(scanner.Text(), "Starting OpenBSD Secure Shell server sshd") {
+			sshdServerInstallSucceded = true
+		}
+	}
+
+	if !sshdServerInstallSucceded {
+		fmt.Println("failed installation")
+	}
+
+	return containerCreateResp.ID
 }
 
 func stopContainer(ctx context.Context, cli *client.Client, id string) {

@@ -1,12 +1,16 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"go.uber.org/zap"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"time"
 )
 
 func GetFilenameFromProcessName(processName string) string {
@@ -54,4 +58,18 @@ func isSuperUser(c *Configuration, logger *zap.Logger) bool {
 		logger.Error(err.Error())
 	}
 	return true
+}
+
+func GetOpenPort() (int, error) {
+	for port := 9007; port <= 11000; port++ {
+		timeout := time.Second
+		conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(port)), timeout)
+		if conn != nil {
+			conn.Close()
+		}
+		if err != nil {
+			return port, nil
+		}
+	}
+	return 0, errors.New("no open port found")
 }
