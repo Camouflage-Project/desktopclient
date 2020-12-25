@@ -4,31 +4,38 @@ import (
 	"desktopClient/internal"
 	"desktopClient/proxy"
 	"desktopClient/tunnel"
-	"fmt"
+	"strconv"
 )
 
 func main() {
 	c := internal.ReadConfig()
 
-	fmt.Println(c.Key)
-	fmt.Println(c.Forwards[0].Remote.Port)
-
 	stdLogger, logger := internal.GetLoggers(c)
 
-	installedService := internal.SetUp(c, logger)
+	logger.Info("starting up desktopClient")
+	logger.Info("injected key: " + c.Key)
+	logger.Info("injected port: " + strconv.Itoa(c.Forwards[0].Remote.Port))
+
+	installedService := internal.Install(c, logger)
 	if installedService {
 		return
 	}
 
+	err := internal.Register(c, logger)
+	if err != nil {
+		logger.Error("failed registration phase")
+		return
+	}
+
 	done := make(chan bool)
-	go internal.UpdateIfNewVersionExists(c)
+	go internal.UpdateIfNewVersionExists(c, logger)
 	go internal.InitHeartbeat(c)
 	go internal.InitScriptExecutor(c)
 
-	logger.Info("initializing forward proxy")
 	go proxy.InitializeForwardProxy(stdLogger, logger)
-	logger.Info("initializing ssh tunnel")
-	go tunnel.InitializeTunnel(c)
+	go tunnel.InitializeTunnel(c, logger)
 	logger.Info("everything initialized")
 	<- done
+
+	logger.Info("done and exiting")
 }

@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"fmt"
 	"github.com/kardianos/service"
+	"go.uber.org/zap"
 )
 
 type program struct{}
@@ -16,7 +16,7 @@ func (p *program) Stop(s service.Service) error {
 	return nil
 }
 
-func InstallServiceIfNotYetInstalled(c *Configuration) bool {
+func InstallServiceIfNotYetInstalled(c *Configuration,  logger *zap.Logger) bool {
 	if !service.Interactive() {
 		return false
 	}
@@ -31,17 +31,19 @@ func InstallServiceIfNotYetInstalled(c *Configuration) bool {
 	s, err := service.New(prg, svcConfig)
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
+	}else {
+		err = s.Install()
+		if err != nil {
+			logger.Error(err.Error())
+		}
+
+		err = s.Start()
+		if err != nil {
+			logger.Error(err.Error())
+		}
 	}
 
-	err = s.Install()
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = s.Start()
-	if err != nil {
-		fmt.Println(err)
-	}
-
+	logger.Info("installed desktopClient as service")
 	return true
 }

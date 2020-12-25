@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func SetUp(c *Configuration, logger *zap.Logger) bool {
+func Install(c *Configuration, logger *zap.Logger) bool {
 	if !isSuperUser(c, logger) {
 		logSudoRequirementAndExit()
 	}
@@ -24,17 +24,25 @@ func SetUp(c *Configuration, logger *zap.Logger) bool {
 		return true
 	}
 
-	installed := InstallServiceIfNotYetInstalled(c)
+	installed := InstallServiceIfNotYetInstalled(c, logger)
 	if installed {
 		return true
 	}
 
-	register(c, logger)
-	removeExistingOldVersions(c, logger)
-
-	logger.Info("prerequisites completed")
-
 	return false
+}
+
+func Register(c *Configuration, logger *zap.Logger) error {
+	err := register(c, logger)
+	if err != nil {
+		return err
+	}
+
+	err = removeExistingOldVersions(c, logger)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func copyToInstallDirectoryAndExecute(c *Configuration, logger *zap.Logger) bool {
@@ -57,52 +65,68 @@ func copyToInstallDirectoryAndExecute(c *Configuration, logger *zap.Logger) bool
 		}
 
 		ExecuteNewBinary(newPath)
+		logger.Info("copied to " + newPath)
 		return true
 	}
 
 	return false
 }
 
-func removeExistingOldVersions(c *Configuration, logger *zap.Logger) {
+func removeExistingOldVersions(c *Configuration, logger *zap.Logger) error {
 	processes, err := process.Processes()
 	if err != nil {
 		logger.Error(err.Error())
+		return err
 	}
 
 	for _, p := range processes {
 		n, err := p.Name()
 		if err != nil {
 			logger.Error(err.Error())
+			return err
 		} else if strings.HasPrefix(n, c.NamePrefix) && n != c.CurrentVersion {
 			logger.Info("found something to kill!")
-			removeFile(n, logger)
-			killExistingProcess(p, logger)
+			err := removeFile(n, logger)
+			if err != nil {
+				return err
+			}
+			err = killExistingProcess(p, logger)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
-func removeFile(fileName string, logger *zap.Logger) {
+func removeFile(fileName string, logger *zap.Logger) error {
 	err := os.Remove(fileName)
 	if err != nil {
 		logger.Error(err.Error())
+		return err
 	}
+	return nil
 }
 
-func killExistingProcess(p *process.Process, logger *zap.Logger) {
+func killExistingProcess(p *process.Process, logger *zap.Logger) error {
 	if runtime.GOOS == "windows" {
 		err := killProcessOnWindows(int(p.Pid))
 		if err != nil {
 			logger.Error(err.Error())
+			return err
 		}
 	} else {
 		err := p.Kill()
 		if err != nil {
 			logger.Error(err.Error())
+			return err
 		}
 	}
+	return nil
 }
 
-func register(c *Configuration, logger *zap.Logger) {
+func register(c *Configuration, logger *zap.Logger) error {
+	logger.Info("Registering with backend")
 	values := map[string]string{"key": c.Key}
 
 	jsonValue, _ := json.Marshal(values)
@@ -113,7 +137,10 @@ func register(c *Configuration, logger *zap.Logger) {
 
 	if err != nil {
 		logger.Error(err.Error())
+		return err
 	}
+
+	return nil
 }
 
 func killProcessOnWindows(p int) error {

@@ -14,7 +14,7 @@ var Key = "MY8#m6P6hvQot%TJ1l7JLM"
 var InjectedRemoteSshPort = "8119"
 
 type Configuration struct {
-	RegistrationUrl string
+	RegistrationUrl 		string
 	ScriptUrl               string
 	NewVersionUrl           string
 	BinaryUrl               string
@@ -114,7 +114,7 @@ func GetLoggers(config *Configuration) (*log.Logger, *zap.Logger) {
 
 	logger, err := c.Build()
 	if err != nil {
-		log.Fatalln("Error: failed to initiate logger")
+		fmt.Println(err)
 	}
 	defer logger.Sync()
 	return zap.NewStdLog(logger), logger

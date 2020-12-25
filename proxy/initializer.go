@@ -14,6 +14,7 @@ import (
 )
 
 func InitializeForwardProxy(stdLogger *log.Logger, logger *zap.Logger) {
+	logger.Info("initializing forward proxy")
 	var (
 		flagCertPath = ""
 		flagKeyPath  = ""

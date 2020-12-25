@@ -1,2 +1,17 @@
 cd into $GOPATH/src/desktopClient/cmd/desktopClient and build like this with injected variables:
-go build -ldflags "-X desktopClient/internal.Key=somekey -X desktopClient/internal.InjectedRemoteSshPort=9000"
+go build -o SingleProxyDesktopClient_release_1 -ldflags "-X desktopClient/internal.Key=ac62247a-f1af-4b9f-87c3-8153fbe182c9 -X desktopClient/internal.InjectedRemoteSshPort=10060"
+
+to cross compile for other OSes:
+env GOOS=windows GOARCH=amd64 go build -o SingleProxyDesktopClient_release_1 -ldflags "-X desktopClient/internal.Key=ac62247a-f1af-4b9f-87c3-8153fbe182c9 -X desktopClient/internal.InjectedRemoteSshPort=10060"
+
+logging is configured in config.go to be written to /var/log/desktopClient.log
+
+to check service status:
+systemctl status SingleProxyDesktopClient_release_1
+
+to remove service:
+systemctl stop [servicename]
+systemctl disable [servicename]
+rm /etc/systemd/system/[servicename]
+systemctl daemon-reload
+systemctl reset-failed

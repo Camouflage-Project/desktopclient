@@ -3,7 +3,7 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"go.uber.org/zap"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,18 +12,19 @@ import (
 	"time"
 )
 
-func UpdateIfNewVersionExists(c *Configuration) {
+func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
+	logger.Info("initializing updater")
 	for  {
 		time.Sleep(2 * time.Second)
 
-		newVersion, err := getNewestVersion(c)
+		newVersion, err := getNewestVersion(c, logger)
 		if err != nil {
 			continue
 		}
 
 		if newVersion != c.CurrentVersion {
-			fmt.Println("new version exists")
-			filePath, err := downloadNewBinary(c, newVersion)
+			logger.Info("new version exists")
+			filePath, err := downloadNewBinary(c, newVersion, logger)
 			if err != nil {
 				continue
 			}
@@ -32,7 +33,7 @@ func UpdateIfNewVersionExists(c *Configuration) {
 	}
 }
 
-func getNewestVersion(c *Configuration) (string, error) {
+func getNewestVersion(c *Configuration, logger *zap.Logger) (string, error) {
 	values := map[string]string{"key": c.Key}
 
 	jsonValue, _ := json.Marshal(values)
@@ -42,21 +43,21 @@ func getNewestVersion(c *Configuration) (string, error) {
 		bytes.NewBuffer(jsonValue))
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return "", err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return "", err
 	}
 
 	return string(body), nil
 }
 
-func downloadNewBinary(c *Configuration, newVersion string) (string, error) {
+func downloadNewBinary(c *Configuration, newVersion string, logger *zap.Logger) (string, error) {
 	values := map[string]string{"key": c.Key, "binaryName": newVersion}
 	jsonValue, _ := json.Marshal(values)
 
@@ -65,20 +66,20 @@ func downloadNewBinary(c *Configuration, newVersion string) (string, error) {
 		bytes.NewBuffer(jsonValue))
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return "", err
 	}
 	defer response.Body.Close()
 
 	file, err := os.Create(newVersion)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return "", err
 	}
 
 	err = file.Chmod(0700)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return "", err
 	}
 
@@ -86,13 +87,13 @@ func downloadNewBinary(c *Configuration, newVersion string) (string, error) {
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return "", err
 	}
 
 	binaryPath, err := filepath.Abs(file.Name())
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return "", err
 	}
 

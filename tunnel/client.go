@@ -4,6 +4,7 @@ import (
 	"context"
 	"desktopClient/internal"
 	"fmt"
+	"go.uber.org/zap"
 	"log"
 	"net"
 	"net/http"
@@ -19,19 +20,20 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func InitializeTunnel(c *internal.Configuration) {
+func InitializeTunnel(c *internal.Configuration, zapLogger *zap.Logger) {
+	zapLogger.Info("initializing tunnel")
 	logger := logex.StandardLogger()
 	err := connectToSshAndServeWithRetries(
 		ossignal.InterruptOrTerminateBackgroundCtx(logger),
-		logger, c)
+		logger, zapLogger, c)
 
 	if err != nil {
-		fmt.Println(err)
+		zapLogger.Error(err.Error())
 	}
 }
 
 // almost same as connectToSshAndServe(), but with retry logic (and config setup)
-func connectToSshAndServeWithRetries(ctx context.Context, logger *log.Logger, conf *internal.Configuration) error {
+func connectToSshAndServeWithRetries(ctx context.Context, logger *log.Logger, zapLogger *zap.Logger, conf *internal.Configuration) error {
 	sshAuth := ssh.Password(conf.SshServer.Password)
 
 	// 0ms, 100 ms, 200 ms, 400 ms, ...
@@ -43,10 +45,12 @@ func connectToSshAndServeWithRetries(ctx context.Context, logger *log.Logger, co
 			conf,
 			sshAuth,
 			logex.Prefix("connectToSshAndServe", logger),
+			zapLogger,
 			mkLoggerFactory(logger))
 
 		if err != nil {
 			logex.Levels(logger).Error.Println(err.Error())
+			zapLogger.Error(err.Error())
 		}
 
 		// check (non-blocking) if user requested stop
@@ -67,11 +71,13 @@ func connectToSshAndServe(
 	conf *internal.Configuration,
 	auth ssh.AuthMethod,
 	logger *log.Logger,
+	zapLogger *zap.Logger,
 	makeLogger loggerFactory,
 ) error {
 	logl := logex.Levels(logger)
 
 	logl.Info.Println("connecting")
+	zapLogger.Info("connecting to ssh")
 
 	sshConfig := &ssh.ClientConfig{
 		User:            conf.SshServer.Username,
@@ -94,8 +100,10 @@ func connectToSshAndServe(
 	// always disconnect when function returns
 	defer sshClient.Close()
 	defer logl.Info.Println("disconnecting")
+	defer zapLogger.Info("disconnecting from ssh")
 
 	logl.Info.Println("connected; starting to forward ports")
+	zapLogger.Info("connected; starting to forward ports")
 
 	// each listener in reverseForwardOnePort() can return one error, so make sure channel
 	// has enough buffering so even if we return from here, the goroutines won't block trying
