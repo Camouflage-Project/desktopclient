@@ -53,7 +53,7 @@ func (endpoint *Endpoint) String() string {
 }
 
 func ReadConfig() *Configuration {
-	baseUrl := "http://localhost:8080/"
+	baseUrl := "http://localhost:8080/api/"
 	executable, err := os.Executable()
 	if err != nil {
 		fmt.Println(err)

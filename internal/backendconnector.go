@@ -85,7 +85,7 @@ func SendHeartbeatToBackend(c *Configuration, ipParam string, logger *zap.Logger
 
 	jsonValue, _ := json.Marshal(values)
 
-	resp, err := http.Post(c.NewVersionUrl,
+	resp, err := http.Post(c.HeartbeatUrl,
 		"application/json",
 		bytes.NewBuffer(jsonValue))
 
