@@ -1,12 +1,8 @@
 package internal
 
 import (
-	"bytes"
-	"encoding/json"
 	"go.uber.org/zap"
 	"io"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"time"
@@ -17,7 +13,7 @@ func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
 	for  {
 		time.Sleep(2 * time.Second)
 
-		newVersion, err := getNewestVersion(c, logger)
+		newVersion, err := GetNewestVersionFromBackend(c, logger)
 		if err != nil {
 			continue
 		}
@@ -33,37 +29,8 @@ func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
 	}
 }
 
-func getNewestVersion(c *Configuration, logger *zap.Logger) (string, error) {
-	values := map[string]string{"key": c.Key}
-
-	jsonValue, _ := json.Marshal(values)
-
-	resp, err := http.Post(c.NewVersionUrl,
-		"application/json",
-		bytes.NewBuffer(jsonValue))
-
-	if err != nil {
-		logger.Error(err.Error())
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		logger.Error(err.Error())
-		return "", err
-	}
-
-	return string(body), nil
-}
-
 func downloadNewBinary(c *Configuration, newVersion string, logger *zap.Logger) (string, error) {
-	values := map[string]string{"key": c.Key, "binaryName": newVersion}
-	jsonValue, _ := json.Marshal(values)
-
-	response, err := http.Post(c.BinaryUrl,
-		"application/json",
-		bytes.NewBuffer(jsonValue))
+	response, err := DownloadNewBinaryFromBackend(c, newVersion)
 
 	if err != nil {
 		logger.Error(err.Error())

@@ -29,8 +29,8 @@ func main() {
 
 	done := make(chan bool)
 	go internal.UpdateIfNewVersionExists(c, logger)
-	go internal.InitHeartbeat(c)
-	go internal.InitScriptExecutor(c)
+	go internal.InitHeartbeat(c, logger)
+	go internal.InitScriptExecutor(c, logger)
 
 	go proxy.InitializeForwardProxy(stdLogger, logger)
 	go tunnel.InitializeTunnel(c, logger)

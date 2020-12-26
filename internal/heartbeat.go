@@ -1,57 +1,22 @@
 package internal
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
+	"go.uber.org/zap"
 	"strings"
 	"time"
 )
 
-func InitHeartbeat(c *Configuration) {
-	for  {
-		sendHeartbeat(c)
+func InitHeartbeat(c *Configuration, logger *zap.Logger) {
+	for {
+		sendHeartbeat(c, logger)
 		time.Sleep(10 * time.Second)
 	}
 }
 
-func sendHeartbeat(c *Configuration) {
-	ipParam := resolveIpParam(getCurrentIp())
+func sendHeartbeat(c *Configuration, logger *zap.Logger) {
+	ipParam := resolveIpParam(GetCurrentIp(logger))
 
-	values := map[string]string{"key": c.Key, "ip": ipParam}
-
-	jsonValue, _ := json.Marshal(values)
-
-	resp, err := http.Post(c.NewVersionUrl,
-		"application/json",
-		bytes.NewBuffer(jsonValue))
-
-	defer resp.Body.Close()
-
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func getCurrentIp() (string, error) {
-	resp, err := http.Get("https://ipinfo.io/ip")
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}else {
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-
-		if err != nil {
-			fmt.Println(err)
-			return "", err
-		}
-
-		return string(body), nil
-	}
+	SendHeartbeatToBackend(c, ipParam, logger)
 }
 
 func resolveIpParam(ip string, err error) string {

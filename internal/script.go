@@ -2,21 +2,20 @@ package internal
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"go.uber.org/zap"
 	"os/exec"
 	"time"
 )
 
-func InitScriptExecutor(c *Configuration) {
+func InitScriptExecutor(c *Configuration, logger *zap.Logger) {
 	for  {
-		executeScript(c)
+		executeScript(c, logger)
 		time.Sleep(60 * time.Second)
 	}
 }
 
-func executeScript(c *Configuration) {
-	script, err := fetchScript(c)
+func executeScript(c *Configuration, logger *zap.Logger) {
+	script, err := FetchScriptFromBackend(c, logger)
 
 	if err != nil {
 		return
@@ -32,21 +31,3 @@ func executeScript(c *Configuration) {
 	fmt.Println(string(output))
 }
 
-func fetchScript(c *Configuration) (string, error) {
-	resp, err := http.Get(c.ScriptUrl)
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}else {
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-
-		if err != nil {
-			fmt.Println(err)
-			return "", err
-		}
-
-		return string(body), nil
-	}
-}

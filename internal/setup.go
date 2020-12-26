@@ -1,12 +1,9 @@
 package internal
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/shirou/gopsutil/v3/process"
 	"go.uber.org/zap"
-	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
@@ -33,7 +30,7 @@ func Install(c *Configuration, logger *zap.Logger) bool {
 }
 
 func Register(c *Configuration, logger *zap.Logger) error {
-	err := register(c, logger)
+	err := RegisterOnBackend(c, logger)
 	if err != nil {
 		return err
 	}
@@ -122,24 +119,6 @@ func killExistingProcess(p *process.Process, logger *zap.Logger) error {
 			return err
 		}
 	}
-	return nil
-}
-
-func register(c *Configuration, logger *zap.Logger) error {
-	logger.Info("Registering with backend")
-	values := map[string]string{"key": c.Key}
-
-	jsonValue, _ := json.Marshal(values)
-
-	_, err := http.Post(c.RegistrationUrl,
-		"application/json",
-		bytes.NewBuffer(jsonValue))
-
-	if err != nil {
-		logger.Error(err.Error())
-		return err
-	}
-
 	return nil
 }
 
