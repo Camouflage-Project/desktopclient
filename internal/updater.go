@@ -24,7 +24,7 @@ func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
 			if err != nil {
 				continue
 			}
-			ExecuteNewBinary(filePath)
+			ExecuteNewBinary(filePath, nil)
 		}
 	}
 }

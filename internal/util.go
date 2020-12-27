@@ -2,7 +2,6 @@ package internal
 
 import (
 	"errors"
-	"fmt"
 	"go.uber.org/zap"
 	"net"
 	"os"
@@ -21,10 +20,10 @@ func GetWorkingDirectoryFromProcessName(processName string) string {
 	return filepath.Dir(processName) + string(filepath.Separator)
 }
 
-func ExecuteNewBinary(binaryPath string) {
+func ExecuteNewBinary(binaryPath string, logger *zap.Logger) {
 	err := exec.Command(binaryPath).Start()
 	if err!=nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
 	}
 }
 

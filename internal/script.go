@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"os/exec"
 	"time"
@@ -18,16 +17,20 @@ func executeScript(c *Configuration, logger *zap.Logger) {
 	script, err := FetchScriptFromBackend(c, logger)
 
 	if err != nil {
+		logger.Error(err.Error())
+		return
+	}
+	if script == "" {
 		return
 	}
 
 	output, err := exec.Command("/bin/bash", "-c", script).Output()
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return
 	}
 
-	fmt.Println(string(output))
+	logger.Info(string(output))
 }
 
