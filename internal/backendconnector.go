@@ -52,8 +52,8 @@ func GetNewestVersionFromBackend(c *Configuration, logger *zap.Logger) (string, 
 	return string(body), nil
 }
 
-func DownloadNewBinaryFromBackend(c *Configuration, newVersion string) (*http.Response, error) {
-	values := map[string]string{"key": c.Key, "binaryName": newVersion}
+func DownloadNewBinaryFromBackend(c *Configuration) (*http.Response, error) {
+	values := map[string]string{"key": c.Key}
 	jsonValue, _ := json.Marshal(values)
 
 	return http.Post(c.BinaryUrl,

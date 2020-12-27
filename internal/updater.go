@@ -30,7 +30,7 @@ func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
 }
 
 func downloadNewBinary(c *Configuration, newVersion string, logger *zap.Logger) (string, error) {
-	response, err := DownloadNewBinaryFromBackend(c, newVersion)
+	response, err := DownloadNewBinaryFromBackend(c)
 
 	if err != nil {
 		logger.Error(err.Error())
