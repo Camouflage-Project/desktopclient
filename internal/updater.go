@@ -18,7 +18,7 @@ func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
 			continue
 		}
 
-		if newVersion != c.CurrentVersion {
+		if newVersion != "" && newVersion != c.CurrentVersion {
 			logger.Info("new version exists")
 			filePath, err := downloadNewBinary(c, newVersion, logger)
 			if err != nil {
