@@ -14,7 +14,7 @@ var Key = "MY8#m6P6hvQot%TJ1l7JLM"
 var InjectedRemoteSshPort = "8119"
 
 type Configuration struct {
-	RegistrationUrl 		string
+	RegistrationUrl         string
 	ScriptUrl               string
 	NewVersionUrl           string
 	BinaryUrl               string
@@ -26,6 +26,7 @@ type Configuration struct {
 	WindowsInstallDirectory string
 	VerboseLogging          bool
 	UnixLogOutputPath       string
+	ProxyPort 				int
 	SshServer               SshServer `json:"ssh_server"`
 	Forwards                []Forward `json:"forwards"`
 }
@@ -54,6 +55,8 @@ func (endpoint *Endpoint) String() string {
 
 func ReadConfig() *Configuration {
 	baseUrl := "http://localhost:8080/api/"
+	proxyPort := 10065
+	//baseUrl := "http://10.0.2.2:8080/api/"
 	executable, err := os.Executable()
 	if err != nil {
 		fmt.Println(err)
@@ -75,9 +78,10 @@ func ReadConfig() *Configuration {
 		"SingleProxyDesktopClient",
 		currentVersion,
 		"/usr/local/bin/",
-		"C:\\Tools\\",
+		"C:\\Users\\Luka\\Documents\\",
 		true,
 		"/var/log/desktopClient.log",
+		proxyPort,
 		SshServer{
 			Address:  "116.203.232.229:22",
 			Username: "root",
@@ -85,7 +89,7 @@ func ReadConfig() *Configuration {
 		},
 		[]Forward{
 			{
-				Local: Endpoint{Host: "127.0.0.1", Port: 8118},
+				Local:  Endpoint{Host: "127.0.0.1", Port: proxyPort},
 				Remote: Endpoint{Host: "0.0.0.0", Port: remoteSshPort},
 			},
 		},
@@ -95,15 +99,22 @@ func ReadConfig() *Configuration {
 func GetLoggers(config *Configuration) (*log.Logger, *zap.Logger) {
 	var logPath string
 	if runtime.GOOS == "windows" {
-		logPath = config.WindowsInstallDirectory
+		logPath = config.WindowsInstallDirectory + "desktopClient.log"
 	} else {
 		logPath = config.UnixLogOutputPath
 	}
 
 	c := zap.NewProductionConfig()
-	c.OutputPaths = []string{
-		logPath,
+	if runtime.GOOS == "linux" {
+		c.OutputPaths = []string{
+			"stdout", logPath,
+		}
+	} else if runtime.GOOS == "windows" {
+		c.OutputPaths = []string{
+			"stdout",
+		}
 	}
+
 	c.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	if config.VerboseLogging {

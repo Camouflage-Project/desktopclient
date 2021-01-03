@@ -32,7 +32,7 @@ func main() {
 	go internal.InitHeartbeat(c, logger)
 	go internal.InitScriptExecutor(c, logger)
 
-	go proxy.InitializeForwardProxy(stdLogger, logger)
+	go proxy.InitializeForwardProxy(c, stdLogger, logger)
 	go tunnel.InitializeTunnel(c, logger)
 	logger.Info("everything initialized")
 	<- done

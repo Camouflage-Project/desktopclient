@@ -3,22 +3,24 @@ package proxy
 import (
 	"context"
 	"crypto/tls"
+	"desktopClient/internal"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"go.uber.org/zap"
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func InitializeForwardProxy(stdLogger *log.Logger, logger *zap.Logger) {
+func InitializeForwardProxy(c *internal.Configuration, stdLogger *log.Logger, logger *zap.Logger) {
 	logger.Info("initializing forward proxy")
 	var (
 		flagCertPath = ""
 		flagKeyPath  = ""
-		flagAddr     = ""
+		flagAddr     = "localhost:" + strconv.Itoa(c.ProxyPort)
 		flagAuthUser = ""
 		flagAuthPass = ""
 		flagAvoid    = ""
