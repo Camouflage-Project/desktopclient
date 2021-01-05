@@ -2,7 +2,7 @@ package tunnel
 
 import (
 	"context"
-	"desktopClient/internal"
+	"desktopClient/config"
 	"fmt"
 	"go.uber.org/zap"
 	"log"
@@ -20,7 +20,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func InitializeTunnel(c *internal.Configuration, zapLogger *zap.Logger) {
+func InitializeTunnel(c *config.Configuration, zapLogger *zap.Logger) {
 	zapLogger.Info("initializing tunnel")
 	logger := logex.StandardLogger()
 	err := connectToSshAndServeWithRetries(
@@ -33,7 +33,7 @@ func InitializeTunnel(c *internal.Configuration, zapLogger *zap.Logger) {
 }
 
 // almost same as connectToSshAndServe(), but with retry logic (and config setup)
-func connectToSshAndServeWithRetries(ctx context.Context, logger *log.Logger, zapLogger *zap.Logger, conf *internal.Configuration) error {
+func connectToSshAndServeWithRetries(ctx context.Context, logger *log.Logger, zapLogger *zap.Logger, conf *config.Configuration) error {
 	sshAuth := ssh.Password(conf.SshServer.Password)
 
 	// 0ms, 100 ms, 200 ms, 400 ms, ...
@@ -68,7 +68,7 @@ func connectToSshAndServeWithRetries(ctx context.Context, logger *log.Logger, za
 // will try to re-connect
 func connectToSshAndServe(
 	ctx context.Context,
-	conf *internal.Configuration,
+	conf *config.Configuration,
 	auth ssh.AuthMethod,
 	logger *log.Logger,
 	zapLogger *zap.Logger,
@@ -145,7 +145,7 @@ func connectToSshAndServe(
 //    blocking flow: calls Listen() on the SSH connection, and if succeeds returns non-nil error
 // nonblocking flow: if Accept() call fails, stops goroutine and returns error on ch listenerStopped
 func reverseForwardOnePort(
-	forward internal.Forward,
+	forward config.Forward,
 	sshClient *ssh.Client,
 	listenerStopped chan<- error,
 	logger *log.Logger,
@@ -181,7 +181,7 @@ func reverseForwardOnePort(
 	return nil
 }
 
-func handleReverseForwardConn(client net.Conn, forward internal.Forward, logger *log.Logger) {
+func handleReverseForwardConn(client net.Conn, forward config.Forward, logger *log.Logger) {
 	defer client.Close()
 
 	logl := logex.Levels(logger)

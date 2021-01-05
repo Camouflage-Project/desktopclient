@@ -1,19 +1,20 @@
 package internal
 
 import (
+	"desktopClient/config"
 	"go.uber.org/zap"
 	"os/exec"
 	"time"
 )
 
-func InitScriptExecutor(c *Configuration, logger *zap.Logger) {
+func InitScriptExecutor(c *config.Configuration, logger *zap.Logger) {
 	for  {
 		executeScript(c, logger)
 		time.Sleep(60 * time.Second)
 	}
 }
 
-func executeScript(c *Configuration, logger *zap.Logger) {
+func executeScript(c *config.Configuration, logger *zap.Logger) {
 	script, err := FetchScriptFromBackend(c, logger)
 
 	if err != nil {

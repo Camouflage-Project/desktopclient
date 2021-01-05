@@ -1,8 +1,11 @@
 package internal
 
 import (
+	"desktopClient/config"
+	"desktopClient/util"
 	"github.com/shirou/gopsutil/v3/process"
 	"go.uber.org/zap"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -10,7 +13,7 @@ import (
 	"strings"
 )
 
-func Install(c *Configuration, logger *zap.Logger) bool {
+func Install(c *config.Configuration, logger *zap.Logger, stdLogger *log.Logger) bool {
 	if !isSuperUser(c, logger) {
 		logSudoRequirementAndExit(logger)
 	}
@@ -28,7 +31,7 @@ func Install(c *Configuration, logger *zap.Logger) bool {
 	return false
 }
 
-func Register(c *Configuration, logger *zap.Logger) error {
+func Register(c *config.Configuration, logger *zap.Logger) error {
 	err := RegisterOnBackend(c, logger)
 	if err != nil {
 		return err
@@ -41,16 +44,16 @@ func Register(c *Configuration, logger *zap.Logger) error {
 	return nil
 }
 
-func copyToInstallDirectoryAndExecute(c *Configuration, logger *zap.Logger) bool {
+func copyToInstallDirectoryAndExecute(c *config.Configuration, logger *zap.Logger) bool {
 	executable, err := os.Executable()
 	if err != nil {
 		logger.Error(err.Error())
 	}
 
-	fileName := GetFilenameFromProcessName(executable)
-	workingDir := GetWorkingDirectoryFromProcessName(executable)
+	fileName := util.GetFilenameFromProcessName(executable)
+	workingDir := util.GetWorkingDirectoryFromProcessName(executable)
 
-	installDir := GetInstallDirForOs(c)
+	installDir := getInstallDirForOs(c)
 
 	newPath := installDir + fileName
 
@@ -60,7 +63,7 @@ func copyToInstallDirectoryAndExecute(c *Configuration, logger *zap.Logger) bool
 			logger.Error(err.Error())
 		}
 
-		ExecuteNewBinary(newPath, logger)
+		util.ExecuteNewBinary(newPath, logger)
 		logger.Info("copied to " + newPath)
 		return true
 	}
@@ -68,7 +71,39 @@ func copyToInstallDirectoryAndExecute(c *Configuration, logger *zap.Logger) bool
 	return false
 }
 
-func removeExistingOldVersions(c *Configuration, logger *zap.Logger) error {
+func isSuperUser(c *config.Configuration, logger *zap.Logger) bool {
+	installDir := getInstallDirForOs(c)
+	testFilePath := installDir + "desktopClientTestFile.txt"
+
+	file, err := os.Create(testFilePath)
+	if err != nil {
+		logger.Error(err.Error())
+		return false
+	}
+
+	err = file.Close()
+	if err != nil {
+		logger.Error(err.Error())
+	}
+
+	err = os.Remove(testFilePath)
+	if err != nil {
+		logger.Error(err.Error())
+	}
+	return true
+}
+
+func getInstallDirForOs(c *config.Configuration) string {
+	var installDir string
+	if runtime.GOOS == "windows" {
+		installDir = c.WindowsInstallDirectory
+	} else {
+		installDir = c.UnixInstallDirectory
+	}
+	return installDir
+}
+
+func removeExistingOldVersions(c *config.Configuration, logger *zap.Logger) error {
 	processes, err := process.Processes()
 	if err != nil {
 		logger.Error(err.Error())

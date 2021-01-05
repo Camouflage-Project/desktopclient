@@ -1,6 +1,7 @@
-package internal
+package config
 
 import (
+	"desktopClient/util"
 	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -26,7 +27,7 @@ type Configuration struct {
 	WindowsInstallDirectory string
 	VerboseLogging          bool
 	UnixLogOutputPath       string
-	ProxyPort 				int
+	ProxyPort               int
 	SshServer               SshServer `json:"ssh_server"`
 	Forwards                []Forward `json:"forwards"`
 }
@@ -55,13 +56,13 @@ func (endpoint *Endpoint) String() string {
 
 func ReadConfig() *Configuration {
 	baseUrl := "http://localhost:8080/api/"
-	proxyPort := 10065
 	//baseUrl := "http://10.0.2.2:8080/api/"
+	proxyPort := 10065
 	executable, err := os.Executable()
 	if err != nil {
 		fmt.Println(err)
 	}
-	currentVersion := GetFilenameFromProcessName(executable)
+	currentVersion := util.GetFilenameFromProcessName(executable)
 
 	remoteSshPort, err := strconv.Atoi(InjectedRemoteSshPort)
 	if err != nil {

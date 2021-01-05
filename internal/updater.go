@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"desktopClient/config"
+	"desktopClient/util"
 	"go.uber.org/zap"
 	"io"
 	"os"
@@ -8,7 +10,7 @@ import (
 	"time"
 )
 
-func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
+func UpdateIfNewVersionExists(c *config.Configuration, logger *zap.Logger) {
 	logger.Info("initializing updater")
 	for  {
 		time.Sleep(2 * time.Second)
@@ -24,12 +26,12 @@ func UpdateIfNewVersionExists(c *Configuration, logger *zap.Logger) {
 			if err != nil {
 				continue
 			}
-			ExecuteNewBinary(filePath, nil)
+			util.ExecuteNewBinary(filePath, nil)
 		}
 	}
 }
 
-func downloadNewBinary(c *Configuration, newVersion string, logger *zap.Logger) (string, error) {
+func downloadNewBinary(c *config.Configuration, newVersion string, logger *zap.Logger) (string, error) {
 	response, err := DownloadNewBinaryFromBackend(c)
 
 	if err != nil {

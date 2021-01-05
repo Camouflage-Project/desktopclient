@@ -15,3 +15,6 @@ sudo systemctl disable SingleProxyDesktopClient_1_1_2
 sudo rm /etc/systemd/system/SingleProxyDesktopClient_1_1_2.service
 sudo systemctl daemon-reload
 sudo systemctl reset-failed
+
+
+sudo systemctl stop SingleProxyDesktopClient_1_1_2 && sudo systemctl disable SingleProxyDesktopClient_1_1_2 && sudo rm /etc/systemd/system/SingleProxyDesktopClient_1_1_2.service && sudo systemctl daemon-reload && sudo systemctl reset-failed

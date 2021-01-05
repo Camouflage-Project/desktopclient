@@ -3,7 +3,7 @@ package proxy
 import (
 	"context"
 	"crypto/tls"
-	"desktopClient/internal"
+	"desktopClient/config"
 	"log"
 	"net/http"
 	"os"
@@ -15,7 +15,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func InitializeForwardProxy(c *internal.Configuration, stdLogger *log.Logger, logger *zap.Logger) {
+func InitializeForwardProxy(c *config.Configuration, stdLogger *log.Logger, logger *zap.Logger) {
 	logger.Info("initializing forward proxy")
 	var (
 		flagCertPath = ""

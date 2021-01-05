@@ -3,6 +3,7 @@ package internal
 import (
 	"bufio"
 	"context"
+	"desktopClient/util"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -26,7 +27,7 @@ func SpinUpContainer() string {
 	}
 	io.Copy(os.Stdout, reader)
 
-	openHostPort, err := GetOpenPort()
+	openHostPort, err := util.GetOpenPort()
 	if err != nil {
 		panic(err)
 	}

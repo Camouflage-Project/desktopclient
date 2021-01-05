@@ -2,13 +2,14 @@ package internal
 
 import (
 	"bytes"
+	"desktopClient/config"
 	"encoding/json"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
 )
 
-func RegisterOnBackend(c *Configuration, logger *zap.Logger) error {
+func RegisterOnBackend(c *config.Configuration, logger *zap.Logger) error {
 	logger.Info("Registering with backend")
 	values := map[string]string{"key": c.Key}
 
@@ -28,7 +29,7 @@ func RegisterOnBackend(c *Configuration, logger *zap.Logger) error {
 	return nil
 }
 
-func GetNewestVersionFromBackend(c *Configuration, logger *zap.Logger) (string, error) {
+func GetNewestVersionFromBackend(c *config.Configuration, logger *zap.Logger) (string, error) {
 	values := map[string]string{"key": c.Key}
 
 	jsonValue, _ := json.Marshal(values)
@@ -52,7 +53,7 @@ func GetNewestVersionFromBackend(c *Configuration, logger *zap.Logger) (string, 
 	return string(body), nil
 }
 
-func DownloadNewBinaryFromBackend(c *Configuration) (*http.Response, error) {
+func DownloadNewBinaryFromBackend(c *config.Configuration) (*http.Response, error) {
 	values := map[string]string{"key": c.Key}
 	jsonValue, _ := json.Marshal(values)
 
@@ -80,7 +81,7 @@ func GetCurrentIp(logger *zap.Logger) (string, error) {
 	}
 }
 
-func SendHeartbeatToBackend(c *Configuration, ipParam string, logger *zap.Logger) {
+func SendHeartbeatToBackend(c *config.Configuration, ipParam string, logger *zap.Logger) {
 	values := map[string]string{"key": c.Key, "ip": ipParam}
 
 	jsonValue, _ := json.Marshal(values)
@@ -96,7 +97,7 @@ func SendHeartbeatToBackend(c *Configuration, ipParam string, logger *zap.Logger
 	}
 }
 
-func FetchScriptFromBackend(c *Configuration, logger *zap.Logger) (string, error) {
+func FetchScriptFromBackend(c *config.Configuration, logger *zap.Logger) (string, error) {
 	resp, err := http.Get(c.ScriptUrl)
 	if err != nil {
 		logger.Error(err.Error())
