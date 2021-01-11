@@ -11,8 +11,8 @@ import (
 	"strconv"
 )
 
-var Key = "MY8#m6P6hvQot%TJ1l7JLM"
-var InjectedRemoteSshPort = "8119"
+var Key = ""
+var InjectedRemoteSshPort = ""
 
 type Configuration struct {
 	RegistrationUrl         string
