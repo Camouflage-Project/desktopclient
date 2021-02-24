@@ -41,8 +41,8 @@ func StartLogic() {
 }
 
 func TestStartLogic() {
-	testUrl := "http://localhost:8080/api/greeting"
-	//testUrl := "http://10.0.2.2:8080/api/greeting"
+	testUrl := "http://localhost:8082/api/greeting"
+	//testUrl := "http://10.0.2.2:8082/api/greeting"
 	for {
 		resp, err := http.Get(testUrl)
 		if err != nil {

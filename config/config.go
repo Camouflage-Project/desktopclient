@@ -55,8 +55,8 @@ func (endpoint *Endpoint) String() string {
 }
 
 func ReadConfig() *Configuration {
-	baseUrl := "http://localhost:8080/api/"
-	//baseUrl := "http://10.0.2.2:8080/api/"
+	//baseUrl := "http://localhost:8082/api/"
+	baseUrl := "https://alealogic.com:8082/api/"
 	proxyPort := 10065
 	executable, err := os.Executable()
 	if err != nil {
@@ -85,8 +85,8 @@ func ReadConfig() *Configuration {
 		proxyPort,
 		SshServer{
 			Address:  "116.203.232.229:22",
-			Username: "root",
-			Password: "08Ih4rI$Nm6aNQx2%G*Drx*h9cR!gn5sk8kKEX^#rmf4cjM@6d",
+			Username: "limiteduser",
+			Password: "8sEeV7Q$hELwaYMPlX1A#dAbSP1M^eNVP",
 		},
 		[]Forward{
 			{
