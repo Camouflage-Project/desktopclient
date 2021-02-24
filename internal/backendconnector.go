@@ -90,11 +90,12 @@ func SendHeartbeatToBackend(c *config.Configuration, ipParam string, logger *zap
 		"application/json",
 		bytes.NewBuffer(jsonValue))
 
-	defer resp.Body.Close()
-
 	if err != nil {
 		logger.Error(err.Error())
+		return
 	}
+
+	defer resp.Body.Close()
 }
 
 func FetchScriptFromBackend(c *config.Configuration, logger *zap.Logger) (string, error) {
@@ -102,16 +103,16 @@ func FetchScriptFromBackend(c *config.Configuration, logger *zap.Logger) (string
 	if err != nil {
 		logger.Error(err.Error())
 		return "", err
-	}else {
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-
-		if err != nil {
-			logger.Error(err.Error())
-			return "", err
-		}
-
-		return string(body), nil
 	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		logger.Error(err.Error())
+		return "", err
+	}
+
+	return string(body), nil
 }

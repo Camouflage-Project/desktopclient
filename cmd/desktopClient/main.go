@@ -3,12 +3,10 @@ package main
 import (
 	"desktopClient/config"
 	"desktopClient/internal"
-	"fmt"
 	"strconv"
 )
 
 func main() {
-	fmt.Println("running desktopClient...")
 	c := config.ReadConfig()
 
 	stdLogger, logger := config.GetLoggers(c)
