@@ -1,25 +1,3 @@
-cd into $GOPATH/src/desktopClient/cmd/desktopClient and build like this with injected variables:
-go build -o SingleProxyDesktopClient_1_1_2 -ldflags "-X desktopClient/config.Key=ac62247a-f1af-4b9f-87c3-8153fbe182c9 -X desktopClient/config.InjectedRemoteSshPort=10060"
+# DesktopClient
 
-to cross compile for other OSes:
-env GOOS=windows GOARCH=amd64 go build -o SingleProxyDesktopClient_1_1_2 -ldflags "-X desktopClient/internal.Key=ac62247a-f1af-4b9f-87c3-8153fbe182c9 -X desktopClient/internal.InjectedRemoteSshPort=10060"
-
-logging is configured in config.go to be written to /var/log/desktopClient.log
-
-to check service status:
-systemctl status SingleProxyDesktopClient_1_1_2
-
-to remove service in Linux:
-sudo systemctl stop SingleProxyDesktopClient_1_1_2
-sudo systemctl disable SingleProxyDesktopClient_1_1_2
-sudo rm /etc/systemd/system/SingleProxyDesktopClient_1_1_2.service
-sudo systemctl daemon-reload
-sudo systemctl reset-failed
-
-all-in-one-command:
-sudo systemctl stop SingleProxyDesktopClient_1_1_2 && sudo systemctl disable SingleProxyDesktopClient_1_1_2 && sudo rm /etc/systemd/system/SingleProxyDesktopClient_1_1_2.service && sudo systemctl daemon-reload && sudo systemctl reset-failed
-
-
-to remove service in Windows:
-open Services from search, right click and stop SingleProxyDesktopClient_1_1_2.exe
-open command prompt as admin and execute: sc delete SingleProxyDesktopClient_1_1_2.exe
+Desktop service that turns a host into a proxy by opening an ssh tunnel to a cloud node.
