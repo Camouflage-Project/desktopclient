@@ -9,12 +9,17 @@ logging is configured in config.go to be written to /var/log/desktopClient.log
 to check service status:
 systemctl status SingleProxyDesktopClient_1_1_2
 
-to remove service:
+to remove service in Linux:
 sudo systemctl stop SingleProxyDesktopClient_1_1_2
 sudo systemctl disable SingleProxyDesktopClient_1_1_2
 sudo rm /etc/systemd/system/SingleProxyDesktopClient_1_1_2.service
 sudo systemctl daemon-reload
 sudo systemctl reset-failed
 
-
+all-in-one-command:
 sudo systemctl stop SingleProxyDesktopClient_1_1_2 && sudo systemctl disable SingleProxyDesktopClient_1_1_2 && sudo rm /etc/systemd/system/SingleProxyDesktopClient_1_1_2.service && sudo systemctl daemon-reload && sudo systemctl reset-failed
+
+
+to remove service in Windows:
+open Services from search, right click and stop SingleProxyDesktopClient_1_1_2.exe
+open command prompt as admin and execute: sc delete SingleProxyDesktopClient_1_1_2.exe

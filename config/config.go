@@ -79,14 +79,14 @@ func ReadConfig() *Configuration {
 		"SingleProxyDesktopClient",
 		currentVersion,
 		"/usr/local/bin/",
-		"C:\\Users\\Luka\\Documents\\",
+		"C:\\Users\\TestUser\\Documents\\",
 		true,
 		"/var/log/desktopClient.log",
 		proxyPort,
 		SshServer{
 			Address:  "116.203.232.229:22",
-			Username: "limiteduser",
-			Password: "8sEeV7Q$hELwaYMPlX1A#dAbSP1M^eNVP",
+			Username: "placeholder",
+			Password: "placeholder",
 		},
 		[]Forward{
 			{
