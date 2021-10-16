@@ -16,6 +16,10 @@ func main() {
 	logger.Info("injected port: " + strconv.Itoa(c.Forwards[0].Remote.Port))
 
 	internal.InitializeLogic(c, logger, stdLogger)
+	if !c.RunAsBackgroundService {
+		internal.StartLogic()
+		return
+	}
 
 	installedService := internal.Install(c, logger, stdLogger)
 	if installedService {

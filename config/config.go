@@ -13,8 +13,13 @@ import (
 
 var Key = ""
 var InjectedRemoteSshPort = ""
+var BaseUrl = ""
+var NodeIp = ""
+var NodeLimitedUsername = ""
+var NodeLimitedUserPassword = ""
 
 type Configuration struct {
+	RunAsBackgroundService  bool
 	RegistrationUrl         string
 	ScriptUrl               string
 	NewVersionUrl           string
@@ -55,8 +60,6 @@ func (endpoint *Endpoint) String() string {
 }
 
 func ReadConfig() *Configuration {
-	//baseUrl := "http://localhost:8082/api/"
-	baseUrl := "https://alealogic.com:8082/api/"
 	proxyPort := 10065
 	executable, err := os.Executable()
 	if err != nil {
@@ -70,23 +73,24 @@ func ReadConfig() *Configuration {
 	}
 
 	return &Configuration{
-		baseUrl + "register-desktop-client",
-		baseUrl + "script",
-		baseUrl + "new-version",
-		baseUrl + "binary",
-		baseUrl + "heartbeat",
+		true,
+		BaseUrl + "/register-desktop-client",
+		BaseUrl + "/script",
+		BaseUrl + "/latest-version",
+		BaseUrl + "/binary",
+		BaseUrl + "/heartbeat",
 		Key,
-		"SingleProxyDesktopClient",
+		"ResidentialProxyClient",
 		currentVersion,
 		"/usr/local/bin/",
-		"C:\\Users\\TestUser\\Documents\\",
+		"%userprofile%",
 		true,
 		"/var/log/desktopClient.log",
 		proxyPort,
 		SshServer{
-			Address:  "116.203.232.229:22",
-			Username: "placeholder",
-			Password: "placeholder",
+			Address:  NodeIp + ":22",
+			Username: NodeLimitedUsername,
+			Password: NodeLimitedUserPassword,
 		},
 		[]Forward{
 			{
