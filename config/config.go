@@ -15,7 +15,7 @@ var Key = ""
 var InjectedRemoteSshPort = ""
 var BaseUrl = ""
 var NodeIp = ""
-var NodeLimitedUsername = ""
+var NodeLimitedUserName = ""
 var NodeLimitedUserPassword = ""
 
 type Configuration struct {
@@ -89,7 +89,7 @@ func ReadConfig() *Configuration {
 		proxyPort,
 		SshServer{
 			Address:  NodeIp + ":22",
-			Username: NodeLimitedUsername,
+			Username: NodeLimitedUserName,
 			Password: NodeLimitedUserPassword,
 		},
 		[]Forward{
