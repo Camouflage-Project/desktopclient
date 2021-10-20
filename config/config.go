@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-var Key = ""
+var ClientId = ""
 var InjectedRemoteSshPort = ""
 var BaseUrl = ""
 var NodeIp = ""
@@ -25,7 +25,7 @@ type Configuration struct {
 	NewVersionUrl           string
 	BinaryUrl               string
 	HeartbeatUrl            string
-	Key                     string
+	ClientId                string
 	NamePrefix              string
 	CurrentVersion          string
 	UnixInstallDirectory    string
@@ -79,7 +79,7 @@ func ReadConfig() *Configuration {
 		BaseUrl + "/latest-version",
 		BaseUrl + "/binary",
 		BaseUrl + "/heartbeat",
-		Key,
+		ClientId,
 		"ResidentialProxyClient",
 		currentVersion,
 		"/usr/local/bin/",

@@ -11,7 +11,7 @@ import (
 
 func RegisterOnBackend(c *config.Configuration, logger *zap.Logger) error {
 	logger.Info("Registering with backend")
-	values := map[string]string{"key": c.Key}
+	values := map[string]string{"clientId": c.ClientId}
 
 	jsonValue, _ := json.Marshal(values)
 
@@ -30,7 +30,7 @@ func RegisterOnBackend(c *config.Configuration, logger *zap.Logger) error {
 }
 
 func GetNewestVersionFromBackend(c *config.Configuration, logger *zap.Logger) (string, error) {
-	values := map[string]string{"key": c.Key}
+	values := map[string]string{"clientId": c.ClientId}
 
 	jsonValue, _ := json.Marshal(values)
 
@@ -54,7 +54,7 @@ func GetNewestVersionFromBackend(c *config.Configuration, logger *zap.Logger) (s
 }
 
 func DownloadNewBinaryFromBackend(c *config.Configuration) (*http.Response, error) {
-	values := map[string]string{"key": c.Key}
+	values := map[string]string{"clientId": c.ClientId}
 	jsonValue, _ := json.Marshal(values)
 
 	return http.Post(c.BinaryUrl,
@@ -82,7 +82,7 @@ func GetCurrentIp(logger *zap.Logger) (string, error) {
 }
 
 func SendHeartbeatToBackend(c *config.Configuration, ipParam string, logger *zap.Logger) {
-	values := map[string]string{"key": c.Key, "ip": ipParam}
+	values := map[string]string{"clientId": c.ClientId, "ip": ipParam}
 
 	jsonValue, _ := json.Marshal(values)
 

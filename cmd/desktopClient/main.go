@@ -12,7 +12,7 @@ func main() {
 	stdLogger, logger := config.GetLoggers(c)
 
 	logger.Info("starting up desktopClient")
-	logger.Info("injected key: " + c.Key)
+	logger.Info("injected key: " + c.ClientId)
 	logger.Info("injected port: " + strconv.Itoa(c.Forwards[0].Remote.Port))
 
 	internal.InitializeLogic(c, logger, stdLogger)
