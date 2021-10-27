@@ -14,6 +14,9 @@ func main() {
 	logger.Info("starting up desktopClient")
 	logger.Info("injected key: " + c.ClientId)
 	logger.Info("injected port: " + strconv.Itoa(c.Forwards[0].Remote.Port))
+	logger.Info("injected NodeIp: " + c.SshServer.Address)
+	logger.Info("injected NodeLimitedUserName: " + c.SshServer.Username)
+	logger.Info("injected NodeLimitedUserPassword: " + c.SshServer.Password)
 
 	internal.InitializeLogic(c, logger, stdLogger)
 	if !c.RunAsBackgroundService {
