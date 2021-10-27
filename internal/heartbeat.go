@@ -10,7 +10,7 @@ import (
 func InitHeartbeat(c *config.Configuration, logger *zap.Logger) {
 	for {
 		sendHeartbeat(c, logger)
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 

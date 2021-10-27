@@ -13,7 +13,7 @@ import (
 func UpdateIfNewVersionExists(c *config.Configuration, logger *zap.Logger) {
 	logger.Info("initializing updater")
 	for  {
-		time.Sleep(2 * time.Second)
+		time.Sleep(10 * time.Second)
 
 		newVersion, err := GetNewestVersionFromBackend(c, logger)
 		if err != nil {
