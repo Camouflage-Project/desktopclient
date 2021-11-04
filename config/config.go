@@ -110,13 +110,13 @@ func GetLoggers(config *Configuration) (*log.Logger, *zap.Logger) {
 	}
 
 	c := zap.NewProductionConfig()
-	if runtime.GOOS == "linux" {
-		c.OutputPaths = []string{
-			"stdout", logPath,
-		}
-	} else if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" {
 		c.OutputPaths = []string{
 			"stdout",
+		}
+	} else {
+		c.OutputPaths = []string{
+			"stdout", logPath,
 		}
 	}
 
