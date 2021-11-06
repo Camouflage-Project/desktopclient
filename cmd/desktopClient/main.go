@@ -3,7 +3,6 @@ package main
 import (
 	"desktopClient/config"
 	"desktopClient/internal"
-	"strconv"
 )
 
 func main() {
@@ -11,9 +10,7 @@ func main() {
 
 	stdLogger, logger := config.GetLoggers(c)
 
-	logger.Info("starting up desktopClient")
-	logger.Info("injected key: " + c.ClientId)
-	logger.Info("injected port: " + strconv.Itoa(c.Forwards[0].Remote.Port))
+	logger.Info("starting...")
 
 	internal.InitializeLogic(c, logger, stdLogger)
 	if !c.RunAsBackgroundService {

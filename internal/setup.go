@@ -64,7 +64,6 @@ func copyToInstallDirectoryAndExecute(c *config.Configuration, logger *zap.Logge
 		}
 
 		util.ExecuteNewBinary(newPath, logger)
-		logger.Info("copied to " + newPath)
 		return true
 	}
 
