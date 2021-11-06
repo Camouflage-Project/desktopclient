@@ -18,6 +18,8 @@ func Install(c *config.Configuration, logger *zap.Logger, stdLogger *log.Logger)
 		logSudoRequirementAndExit(logger)
 	}
 
+	logger.Info("installing...")
+
 	copied := copyToInstallDirectoryAndExecute(c, logger)
 	if copied {
 		return true
