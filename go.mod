@@ -1,6 +1,6 @@
 module desktopClient
 
-go 1.16
+go 1.17
 
 require (
 	github.com/function61/gokit v0.0.0-20200302141937-14d21ef1b462
